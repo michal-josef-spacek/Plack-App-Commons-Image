@@ -57,7 +57,7 @@ sub _prepare_app {
 			'label' => 'Wikimedia Commons image form',
 		),
 		'submit' => Data::HTML::Button->new(
-			'data' => 'View image',
+			'data' => ['View image'],
 			'name' => 'page',
 			'type' => 'submit',
 			'value' => 'image',
