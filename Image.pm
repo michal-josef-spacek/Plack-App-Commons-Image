@@ -6,6 +6,9 @@ use warnings;
 
 use Commons::Link;
 use Data::Commons::Image;
+use Data::HTML::Button;
+use Data::HTML::Form;
+use Data::HTML::Form::Input;
 use Plack::Request;
 use Plack::Util::Accessor qw(image image_width page);
 use Readonly;
@@ -20,7 +23,9 @@ our $VERSION = 0.01;
 sub _css {
 	my $self = shift;
 
-	if ($self->{'_page'} eq 'image') {
+	if ($self->{'_page'} eq 'image_form') {
+		$self->{'_html_form'}->process_css;
+	} elsif ($self->{'_page'} eq 'image') {
 		$self->{'_html_image'}->process_css;
 	}
 
@@ -29,6 +34,9 @@ sub _css {
 
 sub _prepare_app {
 	my $self = shift;
+
+	# Inherite defaults.
+	$self->SUPER::_prepare_app;
 
 	# Default value for image width.
 	if (! defined $self->image_width) {
@@ -44,21 +52,22 @@ sub _prepare_app {
 	);
 	$self->{'_html_form'} = Tags::HTML::Form->new(
 		%p,
-		'fields' => [{
-			'id' => 'image',
-			'text' => 'Commons Image',
-			'type' => 'text',
-		}],
-		'submit' => 'View image',
-		'submit_name' => 'page',
-		'submit_value' => 'image',
-		'title' => 'Wikimedia Commons image form',
+		'form' => Data::HTML::Form->new(
+			'css_class' => 'form',
+			'label' => 'Wikimedia Commons image form',
+		),
+		'submit' => Data::HTML::Button->new(
+			'data' => 'View image',
+			'name' => 'page',
+			'type' => 'submit',
+			'value' => 'image',
+		),
 	);
 	$self->{'_html_image'} = Tags::HTML::Image->new(
 		%p,
 		'img_src_cb' => sub {
 			my $image = shift;
-			return $self->{'_link'}->thumb_link($image->image, $self->image_width);
+			return $self->{'_link'}->thumb_link($image->commons_name, $self->image_width);
 		},
 	);
 
@@ -84,8 +93,10 @@ sub _process_actions {
 		if ($req->parameters->{'image'}) {
 			$self->image(url_decode_utf8($req->parameters->{'image'}));
 		}
-		$self->{'_image'} = Data::Commons::Image->new(
-			'image' => $self->image,
+		$self->{'_html_image'}->init(
+			Data::Commons::Image->new(
+				'commons_name' => $self->image,
+			),
 		);
 	}
 
@@ -97,11 +108,16 @@ sub _tags_middle {
 
 	# Image form.
 	if ($self->{'_page'} eq 'image_form') {
-		$self->{'_html_form'}->process;
+		$self->{'_html_form'}->process(Data::HTML::Form::Input->new(
+			'autofocus' => 1,
+			'id' => 'image',
+			'label' => 'Commons Image',
+			'type' => 'text',
+		));
 
 	# Image view.
 	} elsif ($self->{'_page'} eq 'image') {
-		$self->{'_html_image'}->process($self->{'_image'});
+		$self->{'_html_image'}->process;
 	}
 
 	return;
