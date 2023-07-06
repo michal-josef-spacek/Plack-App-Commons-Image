@@ -22,8 +22,18 @@ no_index:
     - t
     - xt
 requires:
-  Plack::Component::Tags::HTML: 0
+  Commons::Link: 0.07
+  Data::Commons::Image: 0.06
+  Data::HTML::Button: 0.04
+  Data::HTML::Form: 0.04
+  Data::HTML::Form::Input: 0.06
+  Plack::Component::Tags::HTML: 0.15
+  Plack::Request: 0
+  Plack::Util::Accessor: 0
+  Readonly: 0
+  Tags::HTML::Form: 0.07
   Tags::HTML::Image: 0
+  URL::Encode: 0
   perl: 5.8.0
 resources:
   bugtracker: https://github.com/michal-josef-spacek/Plack-App-Commons-Image/issues
