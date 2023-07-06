@@ -24,7 +24,7 @@ sub _css {
 	my $self = shift;
 
 	if ($self->{'_page'} eq 'image_form') {
-		$self->{'_html_form'}->process_css;
+		$self->{'_html_form'}->process_css(@{$self->{'_form_fields'}});
 	} elsif ($self->{'_page'} eq 'image') {
 		$self->{'_html_image'}->process_css;
 	}
@@ -71,6 +71,15 @@ sub _prepare_app {
 		},
 	);
 
+	$self->{'_form_fields'} = [
+		Data::HTML::Form::Input->new(
+			'autofocus' => 1,
+			'id' => 'image',
+			'label' => 'Commons Image',
+			'type' => 'text',
+		),
+	];
+
 	return;
 }
 
@@ -108,12 +117,7 @@ sub _tags_middle {
 
 	# Image form.
 	if ($self->{'_page'} eq 'image_form') {
-		$self->{'_html_form'}->process(Data::HTML::Form::Input->new(
-			'autofocus' => 1,
-			'id' => 'image',
-			'label' => 'Commons Image',
-			'type' => 'text',
-		));
+		$self->{'_html_form'}->process(@{$self->{'_form_fields'}});
 
 	# Image view.
 	} elsif ($self->{'_page'} eq 'image') {
